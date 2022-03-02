@@ -29,7 +29,7 @@ All pids defined in /sys/fs/cgroup/memory/tasks file will have swappiness value 
 create new dir in memory folder, it will automatically create other config files.
 Define the new swappiness value here
 
-# DOcker manipulates above system properties of host machine to run a container.
+# Docker manipulates above system properties of host machine to run a container.
 
 
 
@@ -49,4 +49,18 @@ can experiment updating the process.args to `date` command
 or removing network namespace from config (container will use namespace of the host system)
 
 
-::47:21
+
+sudo apt install docker.io -y
+docker version
+
+-> containerd is a program that can spin up multiple runC or other OCI compliant runtimes.
+-> Docker Engine communicates with containerd
+-> docker client and server communicates over unix socker using REST calls, or remote server over TCP calls.
+-> hub.docker.com is registry of image repository
+
+sudo docker info
+docker container --help
+docker container run -i -t alpine sh
+    cat /etc/os-release
+    ps aux
+    ip a
