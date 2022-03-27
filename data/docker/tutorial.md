@@ -192,8 +192,170 @@ docker container run -w /var -it --rm alpine sh
 # setting env variable
 docker container run --env "WEB_HOST=172.168.1.1" -it alpine sh
 
-## ulimit -a
-tells max u limit of a system
+# tells max u limit of a system
+ulimit -a 
+
+# set ulimit at container level
+sudo docker container run -it --ulimit nproc=10 --rm alpine sh
+
+# give set of CPUs of host
+sudo docker container run -d --name cpuLimitedAlpine --cpuset-cpus="0" alpine top
+
+
+# give set of CPUs of host
+sudo docker container run -d --name memoryLimitedAlpine --memory="200m" alpine top
 ```
 
-`End TimeStamp: Video1 : 1:44:40`
+### Some Advance Operations
+```
+# get into container with different program
+sudo docker container exec -it web sh
+
+# policy to restart container if it dies due to some issue
+sudo docker container run -d --restart=always --name web nginx
+sudo docker container run -d --restart=on-failure:3 --name web nginx
+
+# copy a file from host to container
+sudo docker container cp index.html web:/usr/share/nginx/html
+
+# give a label to a container
+sudo docker container run -d --label env=dev nginx
+
+# will help filtering container by label
+sudo docker container ls --filter label=env=dev
+
+# get all the ids of the running containers
+sudo docker container ls -q
+
+# get all the ids of the containers
+sudo docker container ls -q -a
+
+# remove all containers
+sudo docker container rm -f `sudo docker container ls -q`
+sudo docker container rm -f `sudo docker container ls -q -a`
+
+# get the IP Address of a container
+sudo docker container inspect --format='{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' web
+```
+
+### Previlaged access inside container
+```
+
+# start container with host network
+sudo docker container run -it --net=host alpine sh
+
+# try following op, it's not permitted even if you are root user
+ifconfig enp1s0:1 192.168.1.0 up
+
+# run same container with privilaged mode
+sudo docker container run -it --privileged --net=host alpine sh
+
+# following ops should be allowed now
+ifconfig enp1s0:1 192.168.1.0 up
+ifconfig enp1s0:1 192.168.1.0 down
+```
+
+
+### Docker Containers & Images
+```
+# save a docker image
+sudo docker image save modded:latest > /tmp/myimage.tar
+```
+- In order to share image over some repository, we need to push that image to docker registry.
+- An image can be uniqely identified using image name that is formed by
+  - registry/repository:tag
+  - eg: https://index.docker.io/v1/nginx:1.19.6
+
+```
+# login to a registry
+sudo docker login 
+
+# push image | this will fail as this is an attempt to push image to docker hub's root
+sudo docker image push modded:latest
+
+# to resolve, use symlink as following, create a repository including your dockerhub username
+sudo docker image tag modded:latest sahityakmr/modded:latest
+
+# then push using
+sudo docker image push sahityakmr/modded:latest
+
+# to pull this image anywhere, use following
+sudo docker image pull sahityakmr/modded:latest
+```
+
+
+### Working with Container Images using Docker:
+```
+# search image on registry
+sudo docker search nginx
+
+# digests
+sudo docker image ls --digests
+
+# inspect images
+sudo docker image inspect nginx:alpine
+
+# to prune unused images
+sudo docker image prune
+
+# to remove an image
+sudo docker rm imagename
+```
+
+### [Dockerfile](./res/Dockerfile)
+```
+# create a dir for experimentation
+sudo mkdir docker
+
+# create a Dockerfile
+sudo touch Dockerfile
+
+# edit dockerfile and add the commands
+sudo nano Dockerfile
+
+# run build image from the same directory
+sudo docker image build -t myimage:mytag .
+
+# to list newly created image
+sudo docker image ls
+
+# run this container
+sudo docker container run -it myimage:mytag sh
+
+# run build image from the same directory again
+sudo docker image build -t myimage:mytag .
+
+# run the container again | date will come same as docker uses caching
+sudo docker container run --rm myimage:mytag cat f1
+
+# run build image from the same directory again
+sudo docker image build -t myimage:mytag . --no-cache
+
+# run the container again | date will come different as we passed no-cache flag
+sudo docker container run -it myimage:mytag cat f1
+
+# COPY command
+# create two files in the source dir say `f1.py` and `f2.py`
+# repeat the creation if image and container to see if these f1 and f2 are copied,
+
+# ADD command | ADD srcURL /tmp
+# Add can work as copy but also dump URL content to target dir
+
+# CMD command
+# default command
+sudo docker image build -t myimage:cmd . --no-cache
+
+# to avoid overriding default command
+# use ENTRYPOINT command
+```
+
+- A Dockerfile may have multiple run instructions, but this will cause a larger image size, 
+  as each layers metadata will need storage.
+- So, a preferable option would be to combine multiple RUN ops using \&&
+
+```
+# EXPOSE command | port on which we can listen the container
+EXPOSE 80
+```
+`End TimeStamp: Video1 : 04:06:00`
+ 

@@ -1,3 +1,4 @@
+## RDBMS
 RDBMS: Best to ensure ACID properties.
 
 1. Atomicity: Operations and Transactions are atomic. Hold Locks to ensure this.
@@ -97,6 +98,7 @@ Kafka => HDFS   |   Kafka-connect: Can read from kafka and write to HDFS
 2. HDFS to Structuring
 --------------------------------------------------------------------------------
 MapReduced
+![alt text](./res/hdfs_stack.png)
 
 2. Hive (A dataware house, not a DB): Apache Tez, MapReduce, Spark (If data is already structured)
 - Uses a mini database called MetaStore to store Table Information, will be available to other hadoop components.
@@ -112,5 +114,17 @@ PHOENIX (A tool: Kind of JDBC layer on HDFS) : Will allow above operations.
 In Hadoop, there is a layer MPP(Massively Parallel Processing Layer): Tez, Impala, Presto, Drill (They'll use MetaStore of Hive Itself)
 Can run interactive query on Hive and Hbase Tables
 
+Spinup Hadoop on VMWare
 
-02:05
+1. Download Ambari HDP file 
+2. Download VMWare
+3. Set network as bridge
+4. Start VMWare with that HDP image
+5. Now post completion do SSh using provided IP
+6. ssh root@<ip> -p 2222
+7. Default password is hadoop
+8. Set some new password like Spark@123
+9. You'll enter into the shell
+10. ambari-admin-password-reset
+11. reset the password to admin
+02:16
