@@ -357,5 +357,105 @@ sudo docker image build -t myimage:cmd . --no-cache
 # EXPOSE command | port on which we can listen the container
 EXPOSE 80
 ```
-`End TimeStamp: Video1 : 04:06:00`
+
+#### [ENTRTYPOINT with CMD](res/DockerfileEntryWithCMD)
+If ENTRYPOINT and CMD are used together, the default command is specified and finalized by      ENTRYPOINT but CMD will tell the arguments which can be overriden at runtime
+
+e.g:
+```
+sudo docker container run myimage:cmdentry /usr
+```
+
+### MultiStage Dockerfile
+#### [Dockerfile](res/DockerfileMultiStage)
+
+### Docker Networking
+ [take screenshot from 04:36:30]
+
+ ```
+ # linux commands to show bridge interface
+ brctl show
+
+ # try bringign up a container and run this command, will show connected virtual interfaces
+
+# port mapping
+# sudo docker container run -d -p <host_port>:<container_port> nginx:alpine
+sudo docker container run -d -p 8080:80 nginx:alpine
+
+# try hitting: http://192.168.49.218:8080/
+
+# random port mapping | will map a random port from host to an exposed port of container
+sudo docker container run -d -P nginx:alpine
+
+# list docker networks
+sudo docker network ls
+
+# bridge -> docker0
+# host -> --net=host
+# null -> --net=null
+ ```
+
+ This all is to support container communication within single host.
+ But in order to make communication amongst containers accross the nodes, we use two other drivers
+ 1. MACvlan
+ 2. Overlay
+
+#### Create User Defined Network Bridge
+[take screenshot from 04:57:00]
+
+
+```
+# custom network creation
+sudo docker network create mynet
+
+# check it in docker networs
+sudo docker network ls
+
+# inspect
+sudo docker network inspect mynet
+
+# create two containers with this custom network
+sudo docker container run -d --net=mynet --name backend nginx:alpine
+sudo docker container run -d --net=mynet --name frontend nginx:alpine
+
+# inspect | both containers should be listed
+sudo docker network inspect mynet
+
+# exec into one of the container
+sudo docker container exec -it frontend sh
+
+# try 
+ping backend
+
+# this will work, as a custom network provides dns for free :D
+# docker0 network doesn't provide free DNS
+
+```
+
+### Container Storage & Volume Management
+[take screenshot from 05:10:00]
+
+```
+# defining custom destination using -v
+sudo docker container run -it --name volc -v /data alpine sh
+
+# Note: this destination is mounnted somewhere on storage outside the docker
+# this will be visible even after container is destroyed
+
+# find the source of this volume using
+sudo docker container inspect volc
+
+# create a volume
+sudo docker volume create myvol
+
+# create container using this volume
+sudo docker container run -it -v myvol:/data alpine sh
+
+# this volume is persistant and will be available to other containers as well
+
+mkdir /mnt/shared
+echo "Docker Training" > /mnt/shared/index.html
+sudo docker container run -d -v /mnt/shared:/usr/share/nginx/html/ nginx:alpine
+```
+`End TimeStamp: Video1 : 05:27:30`
  
