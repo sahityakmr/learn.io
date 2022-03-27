@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  mongo: 
+    image: mongo:3.3
+    volumes:
+      - db_rsvp:/data/db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    depends_on:
+      - mongo
+    image: teamcloudyuga/rsvpapp
+    ports:
+      - "8000:5000"
+    restart: always
+    environment:
+      MONGODB_HOST: mongo:27017
+
+volumes:
+  db_rsvp: {}

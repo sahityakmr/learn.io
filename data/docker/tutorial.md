@@ -456,6 +456,54 @@ sudo docker container run -it -v myvol:/data alpine sh
 mkdir /mnt/shared
 echo "Docker Training" > /mnt/shared/index.html
 sudo docker container run -d -v /mnt/shared:/usr/share/nginx/html/ nginx:alpine
+
+# read-only mount using ro flag
+sudo docker container run -it -v /mnt/shared:/usr/share/nginx/html/:ro nginx:alpine sh
+
+# remove unused volumes
+sudo docker volume prune
 ```
+
+### Docker Compose
+
+```
+ # install docker compose:
+ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+ sudo chmod +x /usr/local/bin/docker-compose
+
+ # confirm installation
+ docker-compose --version
+
+ # add a directory called wordpress and create docker-compose.yml
+```
+Sample [docker-compose.yml](experiment/wordpress/docker-compose.yml)
+
+```
+# bring up the docker 
+sudo docker-compose up
+# Note: docker-compose automatically adds a custom network and custom volume
+
+# check the application on browser
+localhost:8000
+
+# bring up the docker in background
+sudo docker-compose up -d
+
+# list containers specefic to docker-compose.yml
+sudo docker-compose ps
+
+# bring docker down
+sudo docker-compose down
+# stops and removes containers, but leaves the volumes
+
+# bring docker container down with volume
+sudo docker-compose down -v
+```
+
+### Docker API
+ ```
+ curl --unix-socket /var/run/docker.sock \
+ -X POST "http:/v1.24/images/create?fromImage=alpine"
+ ```
 `End TimeStamp: Video1 : 05:27:30`
- 
+ `neependra+1@cloudyuga.guru, Nk@19821`
