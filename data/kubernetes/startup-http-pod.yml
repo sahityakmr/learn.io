@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+  namespace: default
+spec:
+  containers:
+  - name: myc
+    image: nginx:alpine
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: liveness-port
+    failureThreshold: 30
+    periodSeconds: 10

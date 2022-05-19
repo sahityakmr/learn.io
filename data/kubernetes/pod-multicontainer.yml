@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: compod
+  namespace: default
+  labels:
+    app: nginx-comb
+spec:
+  containers:
+    - image: nginx:alpine
+      name: nginixcon
+    - image: redis
+      name: rediscon
+    - image: memcached
+      name: memcachecon
