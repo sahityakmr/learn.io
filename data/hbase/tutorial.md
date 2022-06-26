@@ -77,15 +77,13 @@ III. Visualization:
 HDFS: Distributed file system of Hadoop
 [Flat files | Extensions: ORC, Parquet, Avro | Can Compress, Can Encrypt]
 NameNode: Master of HDFS and stores metadata of HDFS' files and directories.
-DataNode: Worker Procee, data will be stored as block(default size: 128 MB(big chunk size to reduce I/O count), default replication factor: 3) [Linux Block Size is 4 KB]
+DataNode: Worker Process, data will be stored as block(default size: 128 MB(big chunk size to reduce I/O count), default replication factor: 3) [Linux Block Size is 4 KB]
 
 Ex: 1 GB file (test1.csv): 8 blocks * 128 MB (8 I/O will be enough to read whole data)
 
 NameNode will know, 
 Block A: Stored at DN1, DN3, DN6 (if rack awareness is configured, these DNs will be on different racks)
 B: DN2, DN4, DN7
-
-
 
 
 1. Data from DataSource to HDFS
@@ -127,4 +125,88 @@ Spinup Hadoop on VMWare
 9. You'll enter into the shell
 10. ambari-admin-password-reset
 11. reset the password to admin
-02:16
+
+
+SSH Inside the ambari system:
+
+```
+# Create a dir /data
+hdfs dfs -mkdir /data
+
+# Copy install.log from system to hdfs
+hdfs dfs -put install.log /data
+
+# Verify if file is present
+hdfs dfs -ls /data
+
+# Verify content of file if it is updated or encrypted
+hdfs dfs -cat /data/install.log
+
+# Metadata command of hadoop for a given directory
+hdfs fsck /data -files -blocks -locations -racks
+
+# dir for map reduce, this contains lots of jars
+cd /usr/hdp/2.4.0.0-169/hadoop-mapreduce/
+
+# run map reduce jobs (wordcount program is already written in this jar)
+yarn jar hadoop-mapreduce-examples.jar wordcount /data /wc_out
+
+# verify output folder
+hdfs dfs -ls /wc_out
+
+# An empty file with name _SUCCESS is created to tell job succeeded.
+# One part file for each reducer is generated
+
+hdfs dfs -cat /wc_out/part-r-00000
+```
+
+====================Some Interface description at 03:04:30======03:11:00======================
+
+In Hadoop Cluster:
+
+1. Master Node
+   A. NameNode - Active [Stores metadata of HDFS]
+   B. NameNode - StandBy 
+   C. ResourceManager - Active [For any sort of jobs, resource approval is given by this, this is for YARN]
+   D. ResourceManager - StandBy
+   E. HMaster - Active [Master of HBase, if it is down, HBase will work but create/delete/alter table won't work]
+   F: HMaster - StandBy
+
+2. Management Nodes:
+    A. Ambari
+    B. Grafana
+
+3. Data Nodes / Worker Nodes
+   A. DataNode process, it is worker process of HDFS
+   B. NodeManager (worker process of yarn), will run on same machine
+   C. RegionServer is worker process of HBase, It will also run on same machine
+
+4. Edge Node
+   Kafka / Sqoop / Flume / NIFI
+
+6. Client Node (for user interaction)
+   Hive, MRClient, SparkClient, HBase Thrift, Hbase rest, Oozie
+
+7. Gateway:
+    Apache Knox : WEB-HDFS
+
+8. Zookeeper Quorum [to manage above nodes]
+    A. ZK0
+    B. ZK1
+    C. ZK2
+
+
+Zookeeper will write data into disk in a datastructure called ZNode.
+Zookeeper is the election commissioner, it conducts election for itself and then for other nodes.
+Zookeeper provides content repository, to store configuration information
+Zookeeper also implements Observer pattern, so any ZNode data can be subscribed and notified.
+
+YARN - Yet Another Resource Negotiator
+
+
+
+
+Map Reduce:
+
+
+03:37
